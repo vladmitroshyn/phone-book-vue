@@ -1,0 +1,9 @@
+@mixin table-row-headers {
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+@mixin default-border-radius {
+  border-radius: 10px;
+}
