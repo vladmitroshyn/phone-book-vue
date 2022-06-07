@@ -1,6 +1,32 @@
 <template>
   <section class="table-wrapper">
     <div class="table-container">
+      <div class="filters">
+        <button
+          class="filters__toggle-button"
+          :class="isFiltersVisible ? 'active' : ''"
+          @click.prevent="isFiltersVisible = !isFiltersVisible"
+        >
+          Filters
+        </button>
+        <transition
+          name="filters__panel"
+          @enter="startToggle"
+          @after-enter="endToggle"
+          @before-leave="startToggle"
+          @after-leave="endToggle"
+        >
+          >
+          <FiltersPanel
+            v-show="isFiltersVisible"
+            :filters="filters"
+            @updateFilterFirstName="(val) => filters.firstName = val"
+            @updateFilterLastName="(val) => filters.lastName = val"
+            @updateFilterPhone="(val) => filters.phone = val"
+            @updateFilterEmail="(val) => filters.email = val"
+          />
+        </transition>
+      </div>
       <table class="table">
         <caption>My contacts</caption>
         <thead>
@@ -27,7 +53,7 @@
         </thead>
         <tbody>
           <ContactsTableRow
-            v-for="contact in contacts"
+            v-for="contact in getContacts"
             :key="contact.id"
             :contact="contact"
             @openModal="(contact) => $emit('openModal', contact)"
@@ -36,39 +62,110 @@
         </tbody>
       </table>
     </div>
-    <ContactsTableFooter :recordCount="contacts.length" />
+    <ContactsTableFooter :recordCount="getContacts.length" />
   </section>
 </template>
 
 <script>
 import ContactsTableFooter from './ContactsTableFooter.vue';
 import ContactsTableRow from './ContactsTableRow.vue';
+import FiltersPanel from './FiltersPanel.vue';
 
 export default {
   name: 'ContactsTable',
-  components: { ContactsTableRow, ContactsTableFooter },
+  components: {
+    ContactsTableRow, ContactsTableFooter, FiltersPanel,
+  },
   props: {
     contacts: {
       type: Array,
       required: true,
     },
   },
+  data() {
+    return {
+      isFiltersVisible: false,
+      filters: {
+        firstName: '',
+        lastName: '',
+        phone: '',
+        email: '',
+      },
+    }
+  },
+  computed: {
+    getContacts() {
+      return this.filterContacts(this.contacts);
+    },
+  },
+  methods: {
+    startToggle(el) {
+      el.style.height = `${el.scrollHeight}px`;
+    },
+    endToggle(el) {
+      el.style.height = '';
+    },
+    filterContacts(contacts) {
+      Object.keys(this.filters).forEach((key) => {
+        contacts = contacts
+          .filter(
+            (contact) => contact[key].toString().toLowerCase().includes(this.filters[key].toLowerCase()),
+          );
+      });
+      return contacts;
+    },
+  },
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+
+.filters {
+  margin-bottom: 10px;
+
+  &__toggle-button {
+    display: block;
+    color: #000;
+    background-color: transparent;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    padding-left: 20px;
+
+    &::before {
+      content: '\23F5';
+      position: absolute;
+      top: -15%;
+      left: 0;
+    }
+
+    &.active::before {
+      content: '\23F7';
+    }
+  }
+
+  &__panel-enter-active, &__panel-leave-active {
+    will-change: height, opacity, margin;
+    transition: height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+    overflow: hidden;
+  }
+
+  &__panel-enter, &__panel-leave-to {
+    height: 0 !important;
+    opacity: 0;
+    margin: 0;
+  }
+}
 
 .table-wrapper {
   width: 90%;
   margin: 0 auto;
+  margin-top: 50px;
 }
 
 .table-container {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   overflow-y: auto;
 }
 
@@ -77,7 +174,6 @@ export default {
   border: 1px solid #ccc;
   border-collapse: collapse;
   margin: 0 auto;
-  margin-top: 50px;
   padding: 0;
   width: 100%;
   min-width: 1000px;

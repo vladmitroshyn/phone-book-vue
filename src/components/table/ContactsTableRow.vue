@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import DeleteButton from '../button/DeleteButton.vue'
-import EditButton from '../button/EditButton.vue'
+import DeleteButton from '../buttons/DeleteButton.vue'
+import EditButton from '../buttons/EditButton.vue'
 
 export default {
   name: 'ContactsTableRow',
@@ -46,8 +46,8 @@ export default {
 <style lang="scss" scoped>
 
 tr {
-  background-color: rgb(248, 248, 248);
-  border: 1px solid rgb(221, 221, 221);
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
   padding: 5px;
 }
 
@@ -67,6 +67,9 @@ td:nth-child(6) {
       border-bottom: 3px solid #ddd;
       display: block;
       margin-bottom: 15px;
+      &:last-child {
+        margin: 0;
+      }
   }
 
   td {

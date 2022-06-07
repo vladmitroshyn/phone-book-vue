@@ -48,8 +48,6 @@ export default {
       required: true,
     },
   },
-  watch: {
-  },
   methods: {
     updateValue(value) {
       this.$emit('updateValue', value);
